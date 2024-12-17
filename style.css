@@ -1,0 +1,43 @@
+ body, html {
+    height: 100%;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #f0f0f0;
+}
+
+.game-container {
+    text-align: center;
+    width: 300px;
+    padding: 20px;
+    background: white;
+    box-shadow: 0 0 10px rgba(0,0,0,0.2);
+}
+
+.tower,.incoming-floor {
+    width: 100px;
+    height: 20px;
+    background-color: #66CCFF;
+    margin: 10px auto;
+    transition: all 0.3s ease;
+}
+
+.incoming-floor {
+    background-color: #FFCC66;
+    transform: translateX(0);
+}
+
+.swing-button {
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.game-info {
+    margin-top: 20px;
+}
+
+.game-info p {
+    margin-bottom: 5px;
+}
