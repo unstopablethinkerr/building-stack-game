@@ -19,7 +19,7 @@
 
     function createFloor() {
         const floor = document.createElement('div');
-        floor.classList.add('floor');
+        floor.classList.add('floor', 'swinging-floor');
         floor.style.width = '100%';
         floor.style.height = '50px';
         floor.style.backgroundColor = '#007bff';
@@ -32,14 +32,14 @@
         score = 0;
         mistakes = 0;
         floors = [];
-        gameArea.innerHTML = '';
+        gameArea.innerHTML = '<div class="floor base-floor" id="base-floor"></div>';
         scoreDisplay.textContent = `Score: ${score}`;
         messageDisplay.textContent = '';
         gameOverScreen.style.display = 'none';
 
         currentFloor = createFloor();
         gameArea.appendChild(currentFloor);
-        floors.push(currentFloor);
+        floors.push(document.querySelector('#base-floor'));
 
         gameInterval = setInterval(() => {
             moveFloor();
@@ -86,23 +86,4 @@
             gameArea.appendChild(currentFloor);
             gameInterval = setInterval(() => {
                 moveFloor();
-            }, floorSpeed);
-        } else {
-            endGame();
-        }
-    }
-
-    function endGame() {
-        clearInterval(gameInterval);
-        if (score > highScore) {
-            highScore = score;
-            highScoreDisplay.textContent = `High Score: ${highScore}`;
-        }
-        finalScoreDisplay.textContent = score;
-        gameOverScreen.style.display = 'flex';
-    }
-
-    startButton.addEventListener('click', startGame);
-    gameArea.addEventListener('click', placeFloor);
-    restartButton.addEventListener('click', startGame);
-});
+     
