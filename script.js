@@ -1,45 +1,30 @@
  document.addEventListener('DOMContentLoaded', () => {
     const gameArea = document.querySelector('.game-area');
     const startButton = document.querySelector('#start-button');
-    const scoreDisplay = document.querySelector('#score');
-    const highScoreDisplay = document.querySelector('#high-score');
-    const messageDisplay = document.querySelector('#message');
+    const restartButton = document.querySelector('#restart-button');
+    const swingingFloor = document.querySelector('#swinging-floor');
+    const baseFloor = document.querySelector('#base-floor');
+    const livesDisplay = document.querySelector('.lives');
+    const levelDisplay = document.querySelector('.level');
     const gameOverScreen = document.querySelector('#game-over-screen');
     const finalScoreDisplay = document.querySelector('#final-score');
-    const restartButton = document.querySelector('#restart-button');
 
-    let floors = [];
-    let currentFloor;
+    let lives = 3;
+    let level = 1;
     let score = 0;
-    let highScore = 0;
-    let mistakes = 0;
     let gameInterval;
     let floorSpeed = 20;
     let direction = 1;
 
-    function createFloor() {
-        const floor = document.createElement('div');
-        floor.classList.add('floor', 'swinging-floor');
-        floor.style.width = '100%';
-        floor.style.height = '50px';
-        floor.style.backgroundColor = '#007bff';
-        floor.style.position = 'absolute';
-        floor.style.bottom = '0';
-        return floor;
-    }
-
     function startGame() {
+        lives = 3;
+        level = 1;
         score = 0;
-        mistakes = 0;
-        floors = [];
-        gameArea.innerHTML = '<div class="floor base-floor" id="base-floor"></div>';
-        scoreDisplay.textContent = `Score: ${score}`;
-        messageDisplay.textContent = '';
+        livesDisplay.textContent = '❤️'.repeat(lives);
+        levelDisplay.textContent = `${level} LVL`;
         gameOverScreen.style.display = 'none';
-
-        currentFloor = createFloor();
-        gameArea.appendChild(currentFloor);
-        floors.push(document.querySelector('#base-floor'));
+        swingingFloor.style.width = '100px';
+        baseFloor.style.width = '100px';
 
         gameInterval = setInterval(() => {
             moveFloor();
@@ -47,43 +32,59 @@
     }
 
     function moveFloor() {
-        const floorWidth = parseInt(currentFloor.style.width);
-        const floorLeft = parseInt(currentFloor.style.left) || 0;
+        const floorLeft = parseInt(swingingFloor.style.left) || 0;
 
-        if (Math.abs(floorLeft) >= (300 - floorWidth) / 2) {
+        if (Math.abs(floorLeft) >= 75) {
             direction = -direction;
         }
 
-        currentFloor.style.left = `${floorLeft + direction}px`;
+        swingingFloor.style.left = `${floorLeft + direction}px`;
     }
 
     function placeFloor() {
         clearInterval(gameInterval);
-        const lastFloor = floors[floors.length - 1];
-        const lastFloorWidth = parseInt(lastFloor.style.width);
-        const lastFloorLeft = parseInt(lastFloor.style.left) || 0;
-        const currentFloorWidth = parseInt(currentFloor.style.width);
-        const currentFloorLeft = parseInt(currentFloor.style.left) || 0;
+        const baseFloorWidth = parseInt(baseFloor.style.width);
+        const baseFloorLeft = parseInt(baseFloor.style.left) || 0;
+        const swingingFloorWidth = parseInt(swingingFloor.style.width);
+        const swingingFloorLeft = parseInt(swingingFloor.style.left) || 0;
 
-        const overlap = Math.min(lastFloorWidth, currentFloorWidth) - Math.abs(lastFloorLeft - currentFloorLeft);
+        const overlap = Math.min(baseFloorWidth, swingingFloorWidth) - Math.abs(baseFloorLeft - swingingFloorLeft);
 
         if (overlap > 0) {
-            currentFloor.style.width = `${overlap}px`;
-            currentFloor.style.left = `${lastFloorLeft}px`;
-            floors.push(currentFloor);
+            swingingFloor.style.width = `${overlap}px`;
+            swingingFloor.style.left = `${baseFloorLeft}px`;
+            baseFloor.style.width = `${overlap}px`;
+            baseFloor.style.left = `${baseFloorLeft}px`;
             score++;
-            scoreDisplay.textContent = `Score: ${score}`;
+            level++;
+            levelDisplay.textContent = `${level} LVL`;
 
             if (overlap < 50) {
-                mistakes++;
-                if (mistakes >= 3) {
+                lives--;
+                livesDisplay.textContent = '❤️'.repeat(lives);
+                if (lives <= 0) {
                     endGame();
                     return;
                 }
             }
 
-            currentFloor = createFloor();
-            gameArea.appendChild(currentFloor);
+            swingingFloor.style.width = '100px';
+            swingingFloor.style.left = '0';
             gameInterval = setInterval(() => {
                 moveFloor();
-     
+            }, floorSpeed);
+        } else {
+            endGame();
+        }
+    }
+
+    function endGame() {
+        clearInterval(gameInterval);
+        finalScoreDisplay.textContent = score;
+        gameOverScreen.style.display = 'flex';
+    }
+
+    startButton.addEventListener('click', startGame);
+    restartButton.addEventListener('click', startGame);
+    gameArea.addEventListener('click', placeFloor);
+});
