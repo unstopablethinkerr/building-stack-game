@@ -3,17 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stack Tower Swing</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Stack Swing Game</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="game-container">
         <div class="tower"></div>
-        <div class="floor current-floor" data-size="100"></div>
-        <div class="floor next-floor" data-size="100"></div>
-        <button class="start-button">Start Game</button>
-        <p class="instructions">Click to stack the floors perfectly!</p>
-        <p class="score-display">Score: <span class="score">0</span></p>
+        <div class="incoming-floor"></div>
+        <button class="swing-button">Tap to Place</button>
+        <div class="game-info">
+            <p>Mistakes: <span id="mistakes">0</span>/3</p>
+            <p>Floor Size: <span id="floor-size">100%</span></p>
+            <p>Tower Height: <span id="tower-height">0</span> floors</p>
+        </div>
     </div>
 
     <script src="script.js"></script>
