@@ -1,69 +1,73 @@
-const tower = document.querySelector('.tower');
-const currentFloor = document.querySelector('.current-floor');
-const nextFloor = document.querySelector('.next-floor');
-const startButton = document.querySelector('.start-button');
-const instructions = document.querySelector('.instructions');
-const scoreElement = document.querySelector('.score');
+ document.addEventListener('DOMContentLoaded', (event) => {
+    const tower = document.querySelector('.tower');
+    const incomingFloor = document.querySelector('.incoming-floor');
+    const swingButton = document.querySelector('.swing-button');
+    const mistakesText = document.getElementById('mistakes');
+    const floorSizeText = document.getElementById('floor-size');
+    const towerHeightText = document.getElementById('tower-height');
 
-let score = 0;
-let isGameStarted = false;
-let floorSize = 100;
-let swingAngle = 0;
-let swingDirection = 1;
+    let towerHeight = 0;
+    let floorSize = 100; // Percentage
+    let mistakes = 0;
+    let swingOffset = 0; // Pixels, will oscillate
+    const swingSpeed = 2; // Pixels per frame
+    const swingRange = 50; // Pixels from center
+    const placementTolerance = 10; // Pixels for perfect placement
+    let isSwinging = true;
 
-startButton.addEventListener('click', () => {
-    if (!isGameStarted) {
-        isGameStarted = true;
-        startButton.style.display = 'none';
-        instructions.textContent = 'Stack the floors perfectly!';
-        swing();
-    }
-});
-
-function swing() {
-    setInterval(() => {
-        swingAngle += 5 * swingDirection;
-        if (swingAngle >= 30) {
-            swingDirection = -1;
-        } else if (swingAngle <= -30) {
-            swingDirection = 1;
+    function animateSwing() {
+        if (!isSwinging) return;
+        swingOffset += swingSpeed;
+        
+        // Oscillate
+        if (Math.abs(swingOffset) >= swingRange) {
+            swingSpeed *= -1;
         }
-        currentFloor.style.transform = `rotate(${swingAngle}deg)`;
-    }, 10);
-}
-
-document.addEventListener('click', () => {
-    if (!isGameStarted) return;
-
-    currentFloor.style.left = '0';
-    currentFloor.style.visibility = 'visible';
-
-    nextFloor.style.left = '0';
-    nextFloor.style.visibility = 'visible';
-    nextFloor.style.height = `${floorSize}px`;
-
-    if (floorSize < 15) {
-        gameOver();
+        
+        incomingFloor.style.transform = `translateX(${swingOffset}px)`;
+        requestAnimationFrame(animateSwing);
     }
+    animateSwing();
 
-    score++;
-    scoreElement.textContent = `Score: ${score}`;
-});
-
-function gameOver() {
-    instructions.textContent = 'Game Over! Click to restart.';
-    score = 0;
-    scoreElement.textContent = 'Score: 0';
-    isGameStarted = false;
-    startButton.style.display = 'block';
-
-    currentFloor.style.visibility = 'hidden';
-    nextFloor.style.visibility = 'hidden';
-    nextFloor.style.height = '20px';
-}
-
-window.addEventListener('click', () => {
-    if (isGameStarted) {
-        gameOver();
-    }
+    swingButton.addEventListener('click', () => {
+        isSwinging = false; // Stop the swing animation for a moment
+        
+        const placementError = Math.abs(swingOffset);
+        if (placementError > placementTolerance) {
+            // Mistake
+            mistakes++;
+            mistakesText.textContent = mistakes;
+            if (mistakes >= 3) {
+                alert("Game Over! Final Tower Height: " + towerHeight + " floors");
+                return;
+            }
+            
+            // Reduce floor size
+            floorSize -= 10;
+            if (floorSize < 20) { // Ensure we can still see the floor
+                alert("Floors too small! Game Over. Final Tower Height: " + towerHeight + " floors");
+                return;
+            }
+            floorSizeText.textContent = floorSize + "%";
+            incomingFloor.style.width = floorSize + "%";
+            tower.style.width = floorSize + "%"; // Update tower width for next floors
+        } else {
+            // Perfect or acceptable placement
+            towerHeight++;
+            towerHeightText.textContent = towerHeight;
+            // Add new floor to tower (visually, by moving incoming floor down)
+            const newFloor = incomingFloor.cloneNode(true);
+            newFloor.style.top = (towerHeight * 30) + 'px'; // 30 = height + margin
+            newFloor.style.transform = 'translateX(0)'; // Reset
+            document.querySelector('.game-container').appendChild(newFloor);
+        }
+        
+        // Reset for next floor
+        setTimeout(() => {
+            incomingFloor.style.transform = 'translateX(0)';
+            swingOffset = 0;
+            isSwinging = true; // Restart swing animation
+            animateSwing(); // Ensure it kicks off again
+        }, 500); // Wait half a second before resetting
+    });
 });
