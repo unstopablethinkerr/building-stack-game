@@ -1,73 +1,108 @@
- document.addEventListener('DOMContentLoaded', (event) => {
-    const tower = document.querySelector('.tower');
-    const incomingFloor = document.querySelector('.incoming-floor');
-    const swingButton = document.querySelector('.swing-button');
-    const mistakesText = document.getElementById('mistakes');
-    const floorSizeText = document.getElementById('floor-size');
-    const towerHeightText = document.getElementById('tower-height');
+ document.addEventListener('DOMContentLoaded', () => {
+    const gameArea = document.querySelector('.game-area');
+    const startButton = document.querySelector('#start-button');
+    const scoreDisplay = document.querySelector('#score');
+    const highScoreDisplay = document.querySelector('#high-score');
+    const messageDisplay = document.querySelector('#message');
+    const gameOverScreen = document.querySelector('#game-over-screen');
+    const finalScoreDisplay = document.querySelector('#final-score');
+    const restartButton = document.querySelector('#restart-button');
 
-    let towerHeight = 0;
-    let floorSize = 100; // Percentage
+    let floors = [];
+    let currentFloor;
+    let score = 0;
+    let highScore = 0;
     let mistakes = 0;
-    let swingOffset = 0; // Pixels, will oscillate
-    const swingSpeed = 2; // Pixels per frame
-    const swingRange = 50; // Pixels from center
-    const placementTolerance = 10; // Pixels for perfect placement
-    let isSwinging = true;
+    let gameInterval;
+    let floorSpeed = 20;
+    let direction = 1;
 
-    function animateSwing() {
-        if (!isSwinging) return;
-        swingOffset += swingSpeed;
-        
-        // Oscillate
-        if (Math.abs(swingOffset) >= swingRange) {
-            swingSpeed *= -1;
-        }
-        
-        incomingFloor.style.transform = `translateX(${swingOffset}px)`;
-        requestAnimationFrame(animateSwing);
+    function createFloor() {
+        const floor = document.createElement('div');
+        floor.classList.add('floor');
+        floor.style.width = '100%';
+        floor.style.height = '50px';
+        floor.style.backgroundColor = '#007bff';
+        floor.style.position = 'absolute';
+        floor.style.bottom = '0';
+        return floor;
     }
-    animateSwing();
 
-    swingButton.addEventListener('click', () => {
-        isSwinging = false; // Stop the swing animation for a moment
-        
-        const placementError = Math.abs(swingOffset);
-        if (placementError > placementTolerance) {
-            // Mistake
-            mistakes++;
-            mistakesText.textContent = mistakes;
-            if (mistakes >= 3) {
-                alert("Game Over! Final Tower Height: " + towerHeight + " floors");
-                return;
-            }
-            
-            // Reduce floor size
-            floorSize -= 10;
-            if (floorSize < 20) { // Ensure we can still see the floor
-                alert("Floors too small! Game Over. Final Tower Height: " + towerHeight + " floors");
-                return;
-            }
-            floorSizeText.textContent = floorSize + "%";
-            incomingFloor.style.width = floorSize + "%";
-            tower.style.width = floorSize + "%"; // Update tower width for next floors
-        } else {
-            // Perfect or acceptable placement
-            towerHeight++;
-            towerHeightText.textContent = towerHeight;
-            // Add new floor to tower (visually, by moving incoming floor down)
-            const newFloor = incomingFloor.cloneNode(true);
-            newFloor.style.top = (towerHeight * 30) + 'px'; // 30 = height + margin
-            newFloor.style.transform = 'translateX(0)'; // Reset
-            document.querySelector('.game-container').appendChild(newFloor);
+    function startGame() {
+        score = 0;
+        mistakes = 0;
+        floors = [];
+        gameArea.innerHTML = '';
+        scoreDisplay.textContent = `Score: ${score}`;
+        messageDisplay.textContent = '';
+        gameOverScreen.style.display = 'none';
+
+        currentFloor = createFloor();
+        gameArea.appendChild(currentFloor);
+        floors.push(currentFloor);
+
+        gameInterval = setInterval(() => {
+            moveFloor();
+        }, floorSpeed);
+    }
+
+    function moveFloor() {
+        const floorWidth = parseInt(currentFloor.style.width);
+        const floorLeft = parseInt(currentFloor.style.left) || 0;
+
+        if (Math.abs(floorLeft) >= (300 - floorWidth) / 2) {
+            direction = -direction;
         }
-        
-        // Reset for next floor
-        setTimeout(() => {
-            incomingFloor.style.transform = 'translateX(0)';
-            swingOffset = 0;
-            isSwinging = true; // Restart swing animation
-            animateSwing(); // Ensure it kicks off again
-        }, 500); // Wait half a second before resetting
-    });
+
+        currentFloor.style.left = `${floorLeft + direction}px`;
+    }
+
+    function placeFloor() {
+        clearInterval(gameInterval);
+        const lastFloor = floors[floors.length - 1];
+        const lastFloorWidth = parseInt(lastFloor.style.width);
+        const lastFloorLeft = parseInt(lastFloor.style.left) || 0;
+        const currentFloorWidth = parseInt(currentFloor.style.width);
+        const currentFloorLeft = parseInt(currentFloor.style.left) || 0;
+
+        const overlap = Math.min(lastFloorWidth, currentFloorWidth) - Math.abs(lastFloorLeft - currentFloorLeft);
+
+        if (overlap > 0) {
+            currentFloor.style.width = `${overlap}px`;
+            currentFloor.style.left = `${lastFloorLeft}px`;
+            floors.push(currentFloor);
+            score++;
+            scoreDisplay.textContent = `Score: ${score}`;
+
+            if (overlap < 50) {
+                mistakes++;
+                if (mistakes >= 3) {
+                    endGame();
+                    return;
+                }
+            }
+
+            currentFloor = createFloor();
+            gameArea.appendChild(currentFloor);
+            gameInterval = setInterval(() => {
+                moveFloor();
+            }, floorSpeed);
+        } else {
+            endGame();
+        }
+    }
+
+    function endGame() {
+        clearInterval(gameInterval);
+        if (score > highScore) {
+            highScore = score;
+            highScoreDisplay.textContent = `High Score: ${highScore}`;
+        }
+        finalScoreDisplay.textContent = score;
+        gameOverScreen.style.display = 'flex';
+    }
+
+    startButton.addEventListener('click', startGame);
+    gameArea.addEventListener('click', placeFloor);
+    restartButton.addEventListener('click', startGame);
 });
