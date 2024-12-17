@@ -30,6 +30,14 @@
     transition: left 0.1s linear;
 }
 
+.base-floor {
+    background-color: #0056b3;
+}
+
+.swinging-floor {
+    background-color: #007bff;
+}
+
 .controls {
     margin-top: 20px;
 }
