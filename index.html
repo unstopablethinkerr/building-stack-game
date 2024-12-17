@@ -3,21 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stack Swing Game</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Stack Building Game</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="game-container">
-        <div class="tower"></div>
-        <div class="incoming-floor"></div>
-        <button class="swing-button">Tap to Place</button>
-        <div class="game-info">
-            <p>Mistakes: <span id="mistakes">0</span>/3</p>
-            <p>Floor Size: <span id="floor-size">100%</span></p>
-            <p>Tower Height: <span id="tower-height">0</span> floors</p>
+        <div class="game-area">
+            <div class="floor" id="floor1"></div>
+            <div class="floor" id="floor2"></div>
+        </div>
+        <div class="controls">
+            <button id="start-button">Start Game</button>
+            <p id="score">Score: 0</p>
+            <p id="high-score">High Score: 0</p>
+            <p id="message"></p>
         </div>
     </div>
-
+    <div class="game-over-screen" id="game-over-screen">
+        <p>Game Over!</p>
+        <p>Your Score: <span id="final-score">0</span></p>
+        <button id="restart-button">Restart</button>
+    </div>
     <script src="script.js"></script>
 </body>
 </html>
