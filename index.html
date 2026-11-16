@@ -4,29 +4,45 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Stack Building Game</title>
+    <!-- Inline empty favicon so the browser does not request /favicon.ico (avoids a 404 error) -->
+    <link rel="icon" href="data:,">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="game-container">
-        <div class="game-area">
-            <div class="crane">
-                <div class="hook">
-                    <div class="swinging-floor" id="swinging-floor"></div>
-                </div>
+    <main class="game-container">
+        <header class="hud">
+            <div class="hud-item">
+                <span class="hud-label">Score</span>
+                <span class="hud-value" id="score">0</span>
             </div>
-            <div class="base-floor" id="base-floor"></div>
+            <div class="hud-item">
+                <span class="hud-label">Lives</span>
+                <span class="hud-value" id="lives">❤️❤️❤️</span>
+            </div>
+            <div class="hud-item">
+                <span class="hud-label">Best</span>
+                <span class="hud-value" id="best">0</span>
+            </div>
+        </header>
+
+        <div class="stage">
+            <canvas id="game-canvas" aria-label="Stack building game. Click, tap or press Space to drop the block."></canvas>
+
+            <div class="overlay" id="start-screen">
+                <h1>Stack Builder</h1>
+                <p>Drop each block onto the tower. Line it up to keep the most of it.</p>
+                <button class="btn" id="start-button">Start Game</button>
+                <p class="hint">Click, tap or press <kbd>Space</kbd> to drop</p>
+            </div>
+
+            <div class="overlay hidden" id="game-over-screen">
+                <h2>Game Over!</h2>
+                <p>Your Score: <span id="final-score">0</span></p>
+                <p class="sub" id="new-best" hidden>🏆 New best!</p>
+                <button class="btn" id="restart-button">Play Again</button>
+            </div>
         </div>
-        <div class="controls">
-            <div class="lives">❤️❤️❤️</div>
-            <div class="level">1 LVL</div>
-            <button id="start-button">Start Game</button>
-        </div>
-    </div>
-    <div class="game-over-screen" id="game-over-screen">
-        <p>Game Over!</p>
-        <p>Your Score: <span id="final-score">0</span></p>
-        <button id="restart-button">Restart</button>
-    </div>
+    </main>
     <script src="script.js"></script>
 </body>
 </html>
